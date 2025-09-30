@@ -1,0 +1,120 @@
+{
+  "name": "cep banco de dados",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "produtos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "594ebd1b-8b52-4342-b3fa-954f3e6da420",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        208
+      ],
+      "webhookId": "produtos-local-webhook",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "url": "https://x8ki-letl-twmt.n7.xano.io/api:WR0OcNtm/produto",
+        "options": {}
+      },
+      "id": "92078a37-1e7b-4102-aa90-59e0842943d7",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -48,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const a = [].concat(items[0]?.json || []);\n\nconst nf = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });\n\nconst rows = a.map(p => `\n\n<tr>\n\n<td>${p.id ?? ''}</td>\n\n<td>${p.nome ?? ''}</td>\n\n<td>${nf.format(+p.preco || 0)}</td>\n\n<td>${p.qtd_disp ?? ''}</td>\n\n<td>${p.precisa_produzir ? 'precisa produzir' : 'ok'}</td>\n\n<td>${p.descricao ?? ''}</td>\n\n</tr>`\n\n).join('');\n\nreturn [{\n\njson: {\n\nhtml: `<!doctype html><meta charset=\"utf-8\">\n\n<h1>Lista de Produtos (${a.length})</h1>\n\n<table border=\"1\" cellpadding=\"6\">\n\n<tr>\n\n<th>ID</th><th>Nome</th><th>Preço</th>\n\n<th>Disp.</th><th>Produção</th><th>Descrição</th>\n\n</tr>\n\n${rows}\n\n</table>`\n\n}\n\n}];"
+      },
+      "id": "7e787206-967e-4142-9a8f-f7afc7d3837b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "=text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "3d283627-2e13-409e-9bb9-a38427451b04",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        208
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e79a23cb-1cf9-4cc0-ab9b-b44660481b88",
+  "meta": {
+    "instanceId": "85dfcc2e1147aed395b0310cddd0590fde80fe627ae23a5e9f07b1797ff88987"
+  },
+  "id": "cMjyUFgMjDOqUK8U",
+  "tags": []
+}
